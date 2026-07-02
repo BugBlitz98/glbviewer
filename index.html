@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLB Viewer - Inspect 3D Models Offline & Securely</title>
+  <meta name="description" content="A premium, lightweight, privacy-first 3D GLB/GLTF model viewer for mobile. View, lighting presets, inspect meshes, offline rendering.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Model Viewer Library -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #07111f;
+      --bg-card: #0b1728;
+      --bg-item: #101f33;
+      --bg-item-hover: #13253d;
+      --bg-deep: #060b13;
+      --border: #1f3552;
+      --border-item: #233f5f;
+      --border-active: #2d9cff;
+      --text-primary: #ffffff;
+      --text-secondary: #f8fbff;
+      --text-muted: #91a9c1;
+      --text-blue: #9edcff;
+      --accent: #2d9cff;
+      --accent-glow: rgba(45, 156, 255, 0.25);
+      --teal: #30c7a0;
+      --teal-glow: rgba(48, 199, 160, 0.25);
+      --purple: #a78bfa;
+      --purple-glow: rgba(167, 139, 250, 0.25);
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-full: 9999px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-secondary);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(45, 156, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(48, 199, 160, 0.08) 0%, transparent 40%),
+        linear-gradient(rgba(31, 53, 82, 0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(31, 53, 82, 0.15) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+    }
+
+    /* Typography */
+    h1, h2, h3, h4 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Navbar */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: rgba(7, 17, 31, 0.75);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+      transition: var(--transition);
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-size: 22px;
+      color: var(--text-primary);
+    }
+
+    /* CSS App Logo Diamond mimicking the React Native UI */
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background-color: var(--bg-item);
+      border: 1.5px solid var(--accent);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: rotate(45deg);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .logo-text-inner {
+      font-size: 7.5px;
+      font-weight: 900;
+      color: var(--accent);
+      transform: rotate(-45deg);
+      letter-spacing: 0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-link {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--accent);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: var(--transition);
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      color: #000;
+      border: none;
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(45, 156, 255, 0.4);
+      background-color: var(--accent-glow);
+      color: var(--text-primary);
+      border: 1px solid var(--accent);
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-item);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--bg-item-hover);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 80px 0;
+      position: relative;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background-color: rgba(48, 199, 160, 0.1);
+      border: 1px solid rgba(48, 199, 160, 0.3);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .hero-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--teal);
+      box-shadow: 0 0 8px var(--teal);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+
+    .hero-title {
+      font-size: 54px;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--text-primary) 40%, var(--text-blue) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 17px;
+      color: var(--text-muted);
+      margin-bottom: 36px;
+      max-width: 560px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      border-top: 1px solid var(--border);
+      padding-top: 32px;
+    }
+
+    .metric-value {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Mock Phone / Viewer */
+    .mock-phone-container {
+      position: relative;
+      width: 100%;
+      max-width: 380px;
+      margin: 0 auto;
+    }
+
+    .mock-phone {
+      background-color: #03080e;
+      border: 12px solid #162438;
+      border-radius: 40px;
+      padding: 12px;
+      box-shadow: 
+        0 25px 50px -12px rgba(2, 7, 15, 0.7),
+        0 0 40px rgba(45, 156, 255, 0.15);
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 9 / 18.5;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Speaker/Notch */
+    .mock-phone::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 24px;
+      background-color: #162438;
+      border-bottom-left-radius: 16px;
+      border-bottom-right-radius: 16px;
+      z-index: 10;
+    }
+
+    .phone-screen {
+      flex: 1;
+      border-radius: 28px;
+      background-color: var(--bg-deep);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      border: 1px solid var(--border);
+    }
+
+    /* Mock App Header */
+    .phone-header {
+      padding: 24px 16px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      z-index: 2;
+    }
+
+    .phone-brand {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .phone-brand-logo {
+      width: 20px;
+      height: 20px;
+      background-color: var(--bg-item);
+      border: 1px solid var(--accent);
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: rotate(45deg);
+    }
+
+    .phone-brand-logo-text {
+      font-size: 5px;
+      font-weight: 900;
+      color: var(--accent);
+      transform: rotate(-45deg);
+    }
+
+    .phone-brand-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .phone-header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .phone-header-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background-color: var(--bg-item);
+      border: 1px solid var(--border-item);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+    }
+
+    /* Model viewer inner screen */
+    .viewer-area {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    model-viewer {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-deep);
+      --poster-color: transparent;
+    }
+
+    .viewer-floating-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 5;
+      background-color: rgba(6, 11, 19, 0.8);
+      border: 1px solid var(--border-item);
+      border-radius: var(--radius-sm);
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .viewer-floating-badge-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background-color: var(--teal);
+    }
+
+    .viewer-floating-badge-text {
+      font-size: 9px;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* Floating Expand Camera Reset */
+    .viewer-action-floating {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      z-index: 5;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background-color: rgba(6, 11, 19, 0.8);
+      border: 1px solid var(--border-item);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-primary);
+    }
+
+    /* Interactive controls below mock phone */
+    .interactive-panel {
+      margin-top: 16px;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .panel-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .control-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .control-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .toggle-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .toggle-btn {
+      background-color: var(--bg-item);
+      border: 1px solid var(--border-item);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .toggle-btn.active {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: #000;
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .select-dropdown {
+      background-color: var(--bg-item);
+      border: 1px solid var(--border-item);
+      color: var(--text-primary);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .select-dropdown:focus {
+      border-color: var(--accent);
+    }
+
+    /* Features Section */
+    .features {
+      padding: 100px 0;
+      position: relative;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 60px;
+    }
+
+    .section-tag {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .section-title {
+      font-size: 40px;
+      margin-bottom: 16px;
+    }
+
+    .section-desc {
+      font-size: 16px;
+      color: var(--text-muted);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 32px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at top left, var(--glow-color, rgba(45, 156, 255, 0.05)), transparent 50%);
+      opacity: 0;
+      transition: var(--transition);
+      pointer-events: none;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--active-color, var(--accent));
+      box-shadow: 0 12px 40px -10px rgba(0,0,0,0.4);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-icon-wrapper {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background-color: var(--bg-item);
+      border: 1px solid var(--border-item);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      color: var(--active-color, var(--accent));
+      transition: var(--transition);
+    }
+
+    .feature-card:hover .feature-icon-wrapper {
+      background-color: var(--active-color, var(--accent));
+      color: #000;
+      box-shadow: 0 0 15px var(--glow-color, var(--accent-glow));
+    }
+
+    .feature-title {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    .feature-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* App Showcase Section */
+    .showcase {
+      padding: 100px 0;
+      background-color: rgba(11, 23, 40, 0.3);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .showcase-step {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 40px;
+      align-items: flex-start;
+    }
+
+    .showcase-step:last-child {
+      margin-bottom: 0;
+    }
+
+    .step-number {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: var(--bg-item);
+      border: 1px solid var(--border-item);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .step-content h3 {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .step-content p {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Screen Slideshow Mockup */
+    .showcase-visual {
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+
+    .card-deck {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      overflow-x: auto;
+      padding: 20px 0;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none; /* Firefox */
+    }
+
+    .card-deck::-webkit-scrollbar {
+      display: none; /* Safari/Chrome */
+    }
+
+    .deck-card {
+      flex: 0 0 280px;
+      scroll-snap-align: start;
+      background-color: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      transition: var(--transition);
+      cursor: grab;
+    }
+
+    .deck-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+    }
+
+    .card-header-simple {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .card-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .card-tag {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .card-main-title {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .card-sub-info {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .card-pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .card-pill {
+      background-color: var(--bg-item);
+      border: 1px solid var(--border-item);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      color: var(--text-blue);
+      font-weight: 600;
+    }
+
+    /* CTA Section */
+    .cta-banner {
+      padding: 100px 0;
+      position: relative;
+    }
+
+    .cta-box {
+      background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-deep) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 60px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+
+    .cta-box::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(45, 156, 255, 0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .cta-title {
+      font-size: 42px;
+      margin-bottom: 16px;
+    }
+
+    .cta-desc {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+
+    .download-badges {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .badge-btn {
+      background-color: #03080f;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: var(--transition);
+      color: var(--text-primary);
+    }
+
+    .badge-btn:hover {
+      border-color: var(--accent);
+      background-color: var(--bg-item);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px var(--accent-glow);
+    }
+
+    .badge-icon {
+      font-size: 24px;
+      color: var(--text-primary);
+      width: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .badge-text-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-text-main {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 60px 0 30px;
+      background-color: var(--bg-deep);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr repeat(2, 0.75fr);
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    .footer-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .footer-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 320px;
+    }
+
+    .footer-column-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 20px;
+    }
+
+    .footer-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-link {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .footer-link:hover {
+      color: var(--accent);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid var(--border);
+      padding-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 48px;
+        text-align: center;
+      }
+      
+      .hero-desc {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hero-ctas {
+        justify-content: center;
+      }
+
+      .hero-metrics {
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      .showcase-grid {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 36px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .hero-title {
+        font-size: 40px;
+      }
+      
+      .hero-desc {
+        font-size: 15px;
+      }
+
+      .hero-metrics {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .section-title {
+        font-size: 32px;
+      }
+
+      .nav-links {
+        display: none; /* Simple responsive hide */
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header>
+    <div class="container nav-container">
+      <a href="index.html" class="logo-link">
+        <div class="logo-icon">
+          <span class="logo-text-inner">GLB</span>
+        </div>
+        <span>GLB Viewer</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#demo" class="nav-link">Live Demo</a>
+        <a href="#how-it-works" class="nav-link">How it Works</a>
+        <a href="privacy.html" class="nav-link">Privacy</a>
+        <a href="#download" class="btn btn-primary btn-sm">Download App</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <div class="hero-badge-dot"></div>
+          <span>Offline & Privacy First</span>
+        </div>
+        <h1 class="hero-title">Beautiful 3D Previews Natively on Mobile</h1>
+        <p class="hero-desc">Open, view, and inspect GLB & GLTF files locally on your device with high-performance hardware rendering, multiple lighting environments, and complete visual data privacy.</p>
+        <div class="hero-ctas">
+          <a href="#download" class="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Download App
+          </a>
+          <a href="#demo" class="btn btn-secondary">
+            Try Web Demo
+          </a>
+        </div>
+        <div class="hero-metrics">
+          <div class="metric-item">
+            <div class="metric-value">100%</div>
+            <div class="metric-label">Local Processing</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-value">&lt; 0ms</div>
+            <div class="metric-label">Cloud Latency</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-value">Zero</div>
+            <div class="metric-label">Data Trackers</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mockup with Live Model Viewer -->
+      <div class="hero-visual" id="demo">
+        <div class="mock-phone-container">
+          <div class="mock-phone">
+            <div class="phone-screen">
+              
+              <!-- Mock Header -->
+              <div class="phone-header">
+                <div class="phone-brand">
+                  <div class="phone-brand-logo">
+                    <span class="phone-brand-logo-text">GLB</span>
+                  </div>
+                  <span class="phone-brand-title">GLB Viewer</span>
+                </div>
+                <div class="phone-header-actions">
+                  <div class="phone-header-btn">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                  </div>
+                  <div class="phone-header-btn">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interactive Model Area -->
+              <div class="viewer-area">
+                <div class="viewer-floating-badge">
+                  <div class="viewer-floating-badge-dot"></div>
+                  <span class="viewer-floating-badge-text">Interactive Demo</span>
+                </div>
+                
+                <model-viewer 
+                  id="web-viewer"
+                  src="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
+                  alt="3D Astronaut Model"
+                  camera-controls
+                  auto-rotate
+                  shadow-intensity="1"
+                  exposure="1">
+                </model-viewer>
+
+                <div class="viewer-action-floating" id="reset-camera-btn" title="Reset Camera">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+
+          <!-- Interactive Web Controls -->
+          <div class="interactive-panel">
+            <div class="panel-title">Interactive Viewer controls</div>
+            
+            <div class="control-row">
+              <span class="control-label">Auto-Rotate</span>
+              <div class="toggle-group">
+                <button class="toggle-btn active" id="rotate-on">ON</button>
+                <button class="toggle-btn" id="rotate-off">OFF</button>
+              </div>
+            </div>
+
+            <div class="control-row">
+              <span class="control-label">Animations</span>
+              <div class="toggle-group">
+                <button class="toggle-btn active" id="anim-play">PLAY</button>
+                <button class="toggle-btn" id="anim-pause">PAUSE</button>
+              </div>
+            </div>
+
+            <div class="control-row">
+              <span class="control-label">Lighting Preset</span>
+              <select class="select-dropdown" id="lighting-preset">
+                <option value="studio">Studio (Bright)</option>
+                <option value="soft">Soft (Dim)</option>
+                <option value="outdoor">Outdoor (Natural)</option>
+                <option value="neon">Neon Glow</option>
+              </select>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid Section -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Powerful Utilities</span>
+        <h2 class="section-title">Fully Equipped 3D Explorer</h2>
+        <p class="section-desc">GLB Viewer gives you complete access to view details of your 3D files. Beautifully designed elements load features instantly, with zero remote server connections.</p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card" style="--active-color: var(--accent); --glow-color: var(--accent-glow);">
+          <div class="feature-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          </div>
+          <h3 class="feature-title">Universal Format Support</h3>
+          <p class="feature-desc">Open standard <code>.glb</code> and <code>.gltf</code> 3D files natively. Works smoothly with standard binary packages generated from Blender, Unity, Maya, and three.js.</p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card" style="--active-color: var(--teal); --glow-color: var(--teal-glow);">
+          <div class="feature-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3 class="feature-title">Privacy Guarded</h3>
+          <p class="feature-desc">All processing happens locally on your mobile hardware. No files are ever sent to remote cloud servers. Complete offline capabilities ensure strict visual data privacy.</p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card" style="--active-color: var(--purple); --glow-color: var(--purple-glow);">
+          <div class="feature-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18H9.5a5.5 5.5 0 0 1-5.5-5.5v-2A5.5 5.5 0 0 1 9.5 5H15"/><path d="M15 3h6v6"/><path d="M21 3l-7 7"/></svg>
+          </div>
+          <h3 class="feature-title">Lighting Environments</h3>
+          <p class="feature-desc">Easily switch lighting setups inside the app to fit your model aesthetics. Choose between Studio illumination, Soft lighting, Outdoor sunlight, and colorful Neon vibes.</p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="feature-card" style="--active-color: var(--accent); --glow-color: var(--accent-glow);">
+          <div class="feature-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+          </div>
+          <h3 class="feature-title">Animation Controls</h3>
+          <p class="feature-desc">If your models contain animations, easily control them using play, pause, and speed adjustments. Inspect character movements and moving mechanisms on the go.</p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="feature-card" style="--active-color: var(--teal); --glow-color: var(--teal-glow);">
+          <div class="feature-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><line x1="9" y1="21" x2="9" y2="9"/><line x1="15" y1="21" x2="15" y2="9"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+          </div>
+          <h3 class="feature-title">Mesh & Node Inspector</h3>
+          <p class="feature-desc">Drill deep into files. View node hierarchy, material configurations, camera variables, overall file sizes, and vertex details in an optimized properties panel.</p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="feature-card" style="--active-color: var(--purple); --glow-color: var(--purple-glow);">
+          <div class="feature-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+          </div>
+          <h3 class="feature-title">Local File History</h3>
+          <p class="feature-desc">Reopen files instantly. GLB Viewer caches paths locally via secure AsyncStorage storage so you can easily browse models you loaded recently.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Showcase / Walkthrough Section -->
+  <section class="showcase" id="how-it-works">
+    <div class="container showcase-grid">
+      <div class="showcase-info">
+        <span class="section-tag">Intuitive Flow</span>
+        <h2 class="section-title">Zero Configuration Setup</h2>
+        <p class="section-desc" style="margin-bottom: 40px;">GLB Viewer gets out of your way and does one thing perfectly: loads models cleanly, with customizable wireframes and parameters.</p>
+
+        <div class="showcase-step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3>Choose a Local Model</h3>
+            <p>Use the integrated document picker to select any 3D model (<code>.glb</code> or <code>.gltf</code>) stored locally in your device folders or download directory.</p>
+          </div>
+        </div>
+
+        <div class="showcase-step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3>Adjust Display Options</h3>
+            <p>Toggle grid references, activate wireframe view to verify mesh geometry, toggle animations, or swap lighting environments with quick controls.</p>
+          </div>
+        </div>
+
+        <div class="showcase-step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3>Inspect Details</h3>
+            <p>Access the detailed file modal to see overall mesh details, sizes, vertex count, and animations structured cleanly inside cards.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- App Card decks demonstrating app screens -->
+      <div class="showcase-visual">
+        <div class="card-deck">
+          
+          <!-- Card 1 (Model View) -->
+          <div class="deck-card">
+            <div class="card-header-simple">
+              <div class="card-dot" style="background-color: var(--teal);"></div>
+              <span class="card-tag">Model Viewer Screen</span>
+            </div>
+            <h4 class="card-main-title">yellow-mech-robot.glb</h4>
+            <p class="card-sub-info">Size: 14.52 MB · 120,432 Triangles</p>
+            <div class="card-pill-row">
+              <div class="card-pill">Studio Light</div>
+              <div class="card-pill">Grid ON</div>
+              <div class="card-pill">Skeletal Animation</div>
+            </div>
+          </div>
+
+          <!-- Card 2 (Settings Screen) -->
+          <div class="deck-card">
+            <div class="card-header-simple">
+              <div class="card-dot" style="background-color: var(--accent);"></div>
+              <span class="card-tag">Settings Panel</span>
+            </div>
+            <h4 class="card-main-title">Default Configurations</h4>
+            <p class="card-sub-info">App Theme: Dark / AMOLED Modes</p>
+            <div class="card-pill-row">
+              <div class="card-pill">Wireframe Off By Default</div>
+              <div class="card-pill">Auto Play Animation</div>
+              <div class="card-pill">No Telemetry Toggled</div>
+            </div>
+          </div>
+
+          <!-- Card 3 (Recent Files History) -->
+          <div class="deck-card">
+            <div class="card-header-simple">
+              <div class="card-dot" style="background-color: var(--purple);"></div>
+              <span class="card-tag">My Files History</span>
+            </div>
+            <h4 class="card-main-title">Recently Viewed Files</h4>
+            <p class="card-sub-info">Stored securely in local app memory</p>
+            <div class="card-pill-row">
+              <div class="card-pill">robot-run.glb</div>
+              <div class="card-pill">sci-fi-helmet.gltf</div>
+              <div class="card-pill">drone-scan.glb</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download Banner -->
+  <section class="cta-banner" id="download">
+    <div class="container">
+      <div class="cta-box">
+        <h2 class="cta-title">Get Started Today</h2>
+        <p class="cta-desc">Inspect, check, and demonstrate 3D assets easily. Fully compatible with modern Android platforms. Completely free to use.</p>
+        <div class="download-badges">
+          
+          <!-- Google Play Badge Mockup -->
+          <div class="badge-btn">
+            <div class="badge-icon">
+              <!-- Android / Play Store Icon Vector -->
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17L19 9L5 1V17Z" fill="currentColor"/><path d="M5 17L12 12V23L5 17Z" fill="currentColor"/><path d="M12 12L19 9L19 15L12 12Z" fill="currentColor"/></svg>
+            </div>
+            <div>
+              <div class="badge-text-sub">Get it on</div>
+              <div class="badge-text-main">Google Play</div>
+            </div>
+          </div>
+
+          <!-- Direct APK Badge Mockup -->
+          <div class="badge-btn">
+            <div class="badge-icon">
+              <!-- Generic Package Download -->
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            </div>
+            <div>
+              <div class="badge-text-sub">Download direct</div>
+              <div class="badge-text-main">Android APK</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="logo-link">
+            <div class="logo-icon">
+              <span class="logo-text-inner">GLB</span>
+            </div>
+            <span>GLB Viewer</span>
+          </a>
+          <p class="footer-desc">A premium local utility to inspect and view 3D asset metadata with ease.</p>
+        </div>
+        <div>
+          <h4 class="footer-column-title">App Features</h4>
+          <ul class="footer-list">
+            <li><a href="#features" class="footer-link">Offline Rendering</a></li>
+            <li><a href="#features" class="footer-link">Lighting Presets</a></li>
+            <li><a href="#features" class="footer-link">Mesh Analysis</a></li>
+            <li><a href="#features" class="footer-link">Local History</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-column-title">Legal & Security</h4>
+          <ul class="footer-list">
+            <li><a href="privacy.html" class="footer-link">Privacy Policy</a></li>
+            <li><a href="privacy.html#data-security" class="footer-link">Data Processing</a></li>
+            <li><a href="privacy.html#third-party" class="footer-link">Third-Party Terms</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 GLB Viewer. All rights reserved. All 3D assets render 100% on-device.</p>
+        <p>Built with React Native & Three.js</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Web Controller Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const viewer = document.getElementById('web-viewer');
+      
+      // Auto-Rotate toggles
+      const rotateOn = document.getElementById('rotate-on');
+      const rotateOff = document.getElementById('rotate-off');
+      
+      rotateOn.addEventListener('click', () => {
+        viewer.setAttribute('auto-rotate', '');
+        rotateOn.classList.add('active');
+        rotateOff.classList.remove('active');
+      });
+
+      rotateOff.addEventListener('click', () => {
+        viewer.removeAttribute('auto-rotate');
+        rotateOff.classList.add('active');
+        rotateOn.classList.remove('active');
+      });
+
+      // Play/Pause animations
+      const animPlay = document.getElementById('anim-play');
+      const animPause = document.getElementById('anim-pause');
+
+      animPlay.addEventListener('click', () => {
+        viewer.play();
+        animPlay.classList.add('active');
+        animPause.classList.remove('active');
+      });
+
+      animPause.addEventListener('click', () => {
+        viewer.pause();
+        animPause.classList.add('active');
+        animPlay.classList.remove('active');
+      });
+
+      // Lighting preset updates
+      const lightingSelect = document.getElementById('lighting-preset');
+      lightingSelect.addEventListener('change', (e) => {
+        const val = e.target.value;
+        if (val === 'studio') {
+          viewer.setAttribute('exposure', '1.0');
+          viewer.setAttribute('shadow-intensity', '1');
+        } else if (val === 'soft') {
+          viewer.setAttribute('exposure', '0.5');
+          viewer.setAttribute('shadow-intensity', '0.4');
+        } else if (val === 'outdoor') {
+          viewer.setAttribute('exposure', '1.5');
+          viewer.setAttribute('shadow-intensity', '1.5');
+        } else if (val === 'neon') {
+          viewer.setAttribute('exposure', '0.8');
+          viewer.setAttribute('shadow-intensity', '0.8');
+        }
+      });
+
+      // Reset camera orientation
+      const resetBtn = document.getElementById('reset-camera-btn');
+      resetBtn.addEventListener('click', () => {
+        viewer.cameraOrbit = 'unset unset unset';
+        viewer.cameraTarget = 'unset unset unset';
+        viewer.fieldOfView = 'unset';
+      });
+    });
+  </script>
+</body>
+</html>
