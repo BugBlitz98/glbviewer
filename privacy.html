@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - GLB Viewer</title>
+  <meta name="description" content="Privacy Policy for GLB Viewer. Learn how we process your 3D models securely and 100% locally on your device.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #07111f;
+      --bg-card: #0b1728;
+      --bg-item: #101f33;
+      --bg-item-hover: #13253d;
+      --bg-deep: #060b13;
+      --border: #1f3552;
+      --border-item: #233f5f;
+      --border-active: #2d9cff;
+      --text-primary: #ffffff;
+      --text-secondary: #f8fbff;
+      --text-muted: #91a9c1;
+      --text-blue: #9edcff;
+      --accent: #2d9cff;
+      --accent-glow: rgba(45, 156, 255, 0.25);
+      --teal: #30c7a0;
+      --teal-glow: rgba(48, 199, 160, 0.25);
+      --purple: #a78bfa;
+      --purple-glow: rgba(167, 139, 250, 0.25);
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-full: 9999px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-secondary);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.7;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(45, 156, 255, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(48, 199, 160, 0.05) 0%, transparent 40%),
+        linear-gradient(rgba(31, 53, 82, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(31, 53, 82, 0.1) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+    }
+
+    /* Typography */
+    h1, h2, h3, h4 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Navbar */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: rgba(7, 17, 31, 0.75);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-size: 22px;
+      color: var(--text-primary);
+    }
+
+    /* CSS App Logo Diamond mimicking the React Native UI */
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background-color: var(--bg-item);
+      border: 1.5px solid var(--accent);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: rotate(45deg);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .logo-text-inner {
+      font-size: 7.5px;
+      font-weight: 900;
+      color: var(--accent);
+      transform: rotate(-45deg);
+      letter-spacing: 0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-link {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .nav-link:hover {
+      color: var(--accent);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: var(--transition);
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      color: #000;
+      border: none;
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(45, 156, 255, 0.4);
+      background-color: var(--accent-glow);
+      color: var(--text-primary);
+      border: 1px solid var(--accent);
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+
+    /* Privacy Policy Content Layout */
+    .policy-section {
+      padding: 60px 0 100px;
+    }
+
+    .policy-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 48px;
+      box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3);
+    }
+
+    .policy-header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 32px;
+      margin-bottom: 40px;
+    }
+
+    .policy-title {
+      font-size: 44px;
+      line-height: 1.2;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--text-primary) 50%, var(--text-blue) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .policy-date {
+      font-size: 14px;
+      color: var(--text-blue);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .policy-content h2 {
+      font-size: 22px;
+      margin-top: 36px;
+      margin-bottom: 16px;
+      border-left: 3px solid var(--accent);
+      padding-left: 12px;
+    }
+
+    .policy-content p {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .policy-content ul {
+      list-style-type: none;
+      margin-bottom: 24px;
+      padding-left: 8px;
+    }
+
+    .policy-content li {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      position: relative;
+      padding-left: 24px;
+    }
+
+    .policy-content li::before {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 10px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--teal);
+    }
+
+    .highlight-box {
+      background-color: var(--bg-item);
+      border: 1px solid var(--border-item);
+      border-radius: var(--radius-sm);
+      padding: 20px 24px;
+      margin: 24px 0;
+    }
+
+    .highlight-box p {
+      margin-bottom: 0;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 60px 0 30px;
+      background-color: var(--bg-deep);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr repeat(2, 0.75fr);
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    .footer-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .footer-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 320px;
+    }
+
+    .footer-column-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 20px;
+    }
+
+    .footer-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-link {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .footer-link:hover {
+      color: var(--accent);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid var(--border);
+      padding-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    /* Responsive styling */
+    @media (max-width: 768px) {
+      .policy-card {
+        padding: 32px 24px;
+      }
+      
+      .policy-title {
+        font-size: 32px;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 36px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header>
+    <div class="container nav-container">
+      <a href="index.html" class="logo-link">
+        <div class="logo-icon">
+          <span class="logo-text-inner">GLB</span>
+        </div>
+        <span>GLB Viewer</span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html#features" class="nav-link">Features</a>
+        <a href="index.html#demo" class="nav-link">Live Demo</a>
+        <a href="index.html#how-it-works" class="nav-link">How it Works</a>
+        <a href="privacy.html" class="nav-link active">Privacy</a>
+        <a href="index.html#download" class="btn btn-primary btn-sm">Download App</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Policy -->
+  <section class="policy-section">
+    <div class="container">
+      <div class="policy-card">
+        
+        <div class="policy-header">
+          <div class="policy-date">Last Updated: July 2, 2026</div>
+          <h1 class="policy-title">Privacy Policy</h1>
+        </div>
+
+        <div class="policy-content">
+          <p>This Privacy Policy describes how <strong>GLB Viewer</strong> ("we", "our", or "the application") processes, handles, and protects information when you use the GLB Viewer mobile application on Android and other compatible mobile systems.</p>
+          
+          <div class="highlight-box">
+            <p><strong>TL;DR (Too Long; Didn't Read):</strong> GLB Viewer is designed with a strict privacy-first philosophy. Your 3D models are processed entirely locally on your device. We do not host, store, or transmit your 3D assets to any remote servers.</p>
+          </div>
+
+          <h2>1. Collection and Processing of 3D Models</h2>
+          <p>GLB Viewer allows you to load, preview, and inspect 3D models in standard binary formats (such as <code>.glb</code> and <code>.gltf</code>) directly from your device storage.</p>
+          <ul>
+            <li><strong>On-Device Loading:</strong> All model file reading, parsing, and hardware-accelerated WebGL rendering happen strictly inside a local, sandboxed environment on your physical device.</li>
+            <li><strong>No Cloud Transmissions:</strong> We do not operate any external cloud storage or model processing services. Your files are never uploaded to, cached on, or shared with our servers or any third-party databases.</li>
+            <li><strong>Zero Storage Tracking:</strong> The files you view remain in their original directories on your phone. GLB Viewer does not duplicate your models into hidden folders.</li>
+          </ul>
+
+          <h2 id="data-security">2. Local Storage and Caching</h2>
+          <p>For your convenience, GLB Viewer stores minor configuration and reference details locally within the app's secure sandbox:</p>
+          <ul>
+            <li><strong>Recently Opened History:</strong> We store a reference list containing the file names, file sizes, and directory paths of models you have recently opened. This enables the "My Files" list in the gallery screen.</li>
+            <li><strong>User Settings:</strong> Your theme preference (Light, Dark, AMOLED), grid settings, and default lighting presets are stored inside the app config.</li>
+            <li><strong>Deletion Controls:</strong> You can clear all cached history lists instantly by selecting "Clear All" in the app gallery tab, or by uninstalling the application from your device settings.</li>
+          </ul>
+
+          <h2>3. Device Permissions</h2>
+          <p>To access and render your models, the application may request specific system permissions:</p>
+          <ul>
+            <li><strong>Storage / Document Access:</strong> Required to enable you to browse, pick, and load <code>.glb</code> and <code>.gltf</code> models from your device's downloads, documents, or storage directories.</li>
+          </ul>
+
+          <h2 id="third-party">4. Advertising and Analytics</h2>
+          <p>To sustain free development, GLB Viewer may display advertisements:</p>
+          <ul>
+            <li><strong>Simulated Ads:</strong> By default, the application features simulated advertisements showcasing local tools and conversion utilities, which perform zero remote data tracking.</li>
+            <li><strong>Third-Party Ad Networks:</strong> In future updates or alternative releases, standard advertising networks (such as Google AdMob) may be integrated. These services may collect unique advertising identifiers (e.g., Google AD ID), device details, and general location details to deliver targeted or contextual ads, track metrics, and prevent fraud. These providers handle data according to their individual privacy terms.</li>
+          </ul>
+
+          <h2>5. Built-in Security</h2>
+          <p>Since your model processing runs client-side, security depends heavily on the sandboxing mechanisms of your operating system (Android / iOS). We follow React Native development standards to ensure no local data leakages take place.</p>
+
+          <h2>6. Changes to this Policy</h2>
+          <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date at the top of the policy.</p>
+
+          <h2>7. Contact Us</h2>
+          <p>If you have any questions, suggestions, or concerns regarding your privacy while using GLB Viewer, feel free to contact us at: <a href="mailto:support@glbviewer.local" style="color: var(--accent); text-decoration: underline;">support@glbviewer.local</a>.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="logo-link">
+            <div class="logo-icon">
+              <span class="logo-text-inner">GLB</span>
+            </div>
+            <span>GLB Viewer</span>
+          </a>
+          <p class="footer-desc">A premium local utility to inspect and view 3D asset metadata with ease.</p>
+        </div>
+        <div>
+          <h4 class="footer-column-title">App Features</h4>
+          <ul class="footer-list">
+            <li><a href="index.html#features" class="footer-link">Offline Rendering</a></li>
+            <li><a href="index.html#features" class="footer-link">Lighting Presets</a></li>
+            <li><a href="index.html#features" class="footer-link">Mesh Analysis</a></li>
+            <li><a href="index.html#features" class="footer-link">Local History</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-column-title">Legal & Security</h4>
+          <ul class="footer-list">
+            <li><a href="privacy.html" class="footer-link">Privacy Policy</a></li>
+            <li><a href="#data-security" class="footer-link">Data Processing</a></li>
+            <li><a href="#third-party" class="footer-link">Third-Party Terms</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 GLB Viewer. All rights reserved. All 3D assets render 100% on-device.</p>
+        <p>Built with React Native & Three.js</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
